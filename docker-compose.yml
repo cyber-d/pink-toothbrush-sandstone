@@ -1,0 +1,44 @@
+version: "2"
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.0
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=0.0.0.0
+      - xpack.security.enabled=false
+      - cluster.name=hive
+      - script.inline=true
+      - thread_pool.index.queue_size=100000
+      - thread_pool.search.queue_size=100000
+      - thread_pool.bulk.queue_size=100000
+  cortex:
+    image: thehiveproject/cortex:latest
+    depends_on:
+      - elasticsearch
+    ports:
+      - "0.0.0.0:9001:9001"
+    volumes:
+      - /Users/elysium/TheHive/yara/rules:/yara/rules
+#  thehive:
+#    image: thehiveproject/thehive:latest
+#    depends_on:
+#      - elasticsearch
+#      - cortex
+#    ports:
+#      - "0.0.0.0:9000:9000"
+#    command: --cortex-port 9001 --cortex-key /GQb8bjiChbd1brd86UM9QoJqQzMU01P
+#    volumes:
+#      - /Users/elysium/TheHive/Config/application.conf:/etc/thehive/application.conf
+  thehive:
+    image: thehiveproject/thehive4:latest
+    depends_on:
+      - elasticsearch
+      - cortex
+    ports:
+      - "0.0.0.0:9000:9000"
+    command: --cortex-port 9001 --cortex-keys /GQb8bjiChbd1brd86UM9QoJqQzMU01P
+    volumes:
+      - /Users/elysium/TheHive4/Config/application.conf:/etc/thehive/application.conf
+   ##command: --cortex-proto http
+    ##command: --cortex-url http://localhost:9001
+    
